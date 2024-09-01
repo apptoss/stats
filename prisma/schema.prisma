@@ -32,3 +32,11 @@ model Bet {
 
   @@unique([chain, txVersion, eventIndex])
 }
+
+model Head {
+  chain     String @id
+  txVersion Int // Aptos transaction version
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

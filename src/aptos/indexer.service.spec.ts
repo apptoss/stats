@@ -18,7 +18,13 @@ describe('IndexerService', () => {
     expect(service).toBeDefined();
   });
 
-  it('all', async () => {
+  it('should index', async () => {
     await service.index();
+  });
+
+  it('getLastHead', async () => {
+    const head = await service.getLastHead();
+    console.log('version', head.version);
+    console.log('hash', head.hash);
   });
 });
