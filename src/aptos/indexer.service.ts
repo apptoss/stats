@@ -4,7 +4,8 @@ import {
   CommittedTransactionResponse,
   Network,
 } from '@aptos-labs/ts-sdk';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { Interval } from '@nestjs/schedule';
 import { PrismaService } from '../prisma.service';
 
 const apptoss = process.env.PACKAGE_ADDRESS;
@@ -20,11 +21,25 @@ export function formatApt(octa: number): string {
 
 @Injectable()
 export class IndexerService {
-  constructor(
-    private prisma: PrismaService,
-    private client = new Aptos(new AptosConfig({ network })),
-    private readonly chain = getAptosChain(network),
-  ) {}
+  private readonly logger = new Logger(IndexerService.name);
+
+  private client: Aptos;
+  private readonly chain: string;
+
+  constructor(private prisma: PrismaService) {
+    this.client = new Aptos(new AptosConfig({ network }));
+    this.chain = getAptosChain(network);
+  }
+
+  @Interval(3000)
+  async handleInterval() {
+    try {
+      this.logger.debug('Indexing...');
+      await this.index();
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
 
   async index() {
     const tip = await this.getLastHead();
