@@ -69,9 +69,11 @@ export class IndexerService {
 
   async indexRange(fromVersion: number | undefined) {
     const events = await this.client.getEvents({
-      minimumLedgerVersion: fromVersion,
       options: {
         where: {
+          transaction_version: {
+            _gte: fromVersion,
+          },
           indexed_type: {
             _in: [
               `${apptoss}::dice::Dice`,
