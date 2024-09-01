@@ -19,6 +19,14 @@ export function formatApt(octa: number): string {
   return (octa / 1e8).toFixed(4);
 }
 
+export async function getPrice() {
+  const resp = await fetch(
+    'https://petra-pricing.petra-wallet.workers.dev/prices?contract_addresses=0x1::aptos_coin::AptosCoin',
+  );
+  const data = await resp.json();
+  return Number(data['0x1::aptos_coin::AptosCoin']['usd']);
+}
+
 @Injectable()
 export class IndexerService {
   private readonly logger = new Logger(IndexerService.name);
@@ -75,6 +83,8 @@ export class IndexerService {
       },
     });
 
+    const price = await getPrice();
+
     const persistJobs = events.map((event) => {
       return this.prisma.bet.upsert({
         where: {
@@ -93,7 +103,7 @@ export class IndexerService {
           game: event.indexed_type,
           asset: 'APT',
           amount: formatApt(event.data.collateral),
-          usdValue: formatApt(event.data.collateral * 6.6981), // TODO APT/USD price
+          usdValue: formatApt(event.data.collateral * price),
           payRatio: event.data.pay_ratio_bps / 10_000,
         },
         update: {},

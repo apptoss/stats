@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma.service';
-import { IndexerService } from './indexer.service';
+import { getPrice, IndexerService } from './indexer.service';
 
 describe('IndexerService', () => {
   let service: IndexerService;
@@ -26,5 +26,10 @@ describe('IndexerService', () => {
     const head = await service.getLastHead();
     console.log('version', head.version);
     console.log('hash', head.hash);
+  });
+
+  it('should get price', async () => {
+    const price = await getPrice();
+    console.log('price', price);
   });
 });
